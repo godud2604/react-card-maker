@@ -1,14 +1,32 @@
-import React from 'react';
+import React, {useEffect} from 'react';
+import { useHistory } from 'react-router-dom';
 import Footer from '../footer/footer';
 import Header from '../header/header';
 import styles from './login.module.css';
 
-const Login = ({authService}) =>{
+const Login = ({authService}) => {
+    const history = useHistory();
+    const goToMaker = userId => {
+        history.push({
+            pathname:'/maker',
+            state: {id: userId},
+        });
+    };
+
     const onLogin = event => {
         authService
         .login(event.currentTarget.textContent)
-        .then(console.log);
+        .then(data => goToMaker(data.user.uid));
     };
+
+    useEffect(() => {
+        authService
+        .onAuthChange(user => {
+            // 사용자가 로그인을 한 상태일 때 자동으로 maker 페이지로 이동
+            user && goToMaker(user.uid);
+        });
+    });
+
     return (
         <section className={styles.login}>
             <Header/>
